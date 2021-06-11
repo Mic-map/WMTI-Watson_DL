@@ -73,8 +73,8 @@ if __name__ == '__main__':
     parser.add_argument("--plot_every", default=20000, type=int)
 
     parser.add_argument("--dataset", default='wmti_dkilr_constraint.mat', type=str)
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
-    parser.add_argument("--model_folder", default='saveLSTM_96_scale1_dkilr_1e-3', type=str)
+    parser.add_argument("--datapath", default='/home/yujian/Desktop/whiteMatterModel', type=str)
+    parser.add_argument("--model_folder", default='saveLSTM_96_scale1_1e-3', type=str)
     parser.add_argument("--data_normalization", default=True, type=bool)
     parser.add_argument("--input_scale_type", default="MinMax", type=str) #'MinMax'#'Standard'#
     parser.add_argument("--output_scale_type", default=1, type=int) #1 #2 
