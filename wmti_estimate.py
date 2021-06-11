@@ -160,7 +160,7 @@ if __name__ == '__main__':
     parser.add_argument("--logpath", default=None)
     parser.add_argument("--logname", default='lstm', type=str)
 
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
+    parser.add_argument("--datapath", default='/home/yujian/Desktop/whiteMatterModel', type=str)
     parser.add_argument("--model_folder", default='saveLSTM_96_scale1_1e-3', type=str)
     parser.add_argument("--data_normalizatioin", default=True, type=bool)
     parser.add_argument("--dki_scaler_filename", default="dki_norm_scaler.gz", type=str)
