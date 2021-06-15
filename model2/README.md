@@ -1,4 +1,5 @@
-Inputs(6): md, ad, rd, mk, ak, rk \n
+Inputs(6): md, ad, rd, mk, ak, rk 
+
 Output(6): f, Da, Depar, Deperp, kappa, f
 
 data norm: True scale_type: 1, target scale: [100, 100, 100, 100, 1, 100] teacher_forcing_ratio: 0.3 lr: 0.0015
