@@ -1,6 +1,15 @@
+input(6): md, ad, rd, mk, ak, rk
+
+output(5): f, Da, Depar, Deperp, kappa
+
 data norm: True
-scale_type: 1, target scale: [100, 100, 100, 100, 1]
+
+scale_type: 1
+
+target scale: [100, 100, 100, 100, 1]
+
 teacher_forcing_ratio: 0.3
+
 lr: 0.001
 
 EncoderRNN(
