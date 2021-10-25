@@ -1,6 +1,6 @@
 input(6): md, ad, rd, mk, ak, rk
 
-output(5): f, Da, Depar, Deperp, kappa
+output(5): f, Da, Depar, Deperp, c2
 
 data norm: True
 
