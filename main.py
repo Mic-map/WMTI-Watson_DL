@@ -39,15 +39,21 @@ def main(args):
     scale_type = args.output_scale_type 
     out_scale = args.output_scale if scale_type==1 else args.output_scale[0]
     intercept = args.output_intercept 
-    logger.info(f"scale_type: {scale_type}, target scale: {out_scale}, intercept: {intercept}")
+    if scale_type ==2:
+        wmti_ranges=[[0,1], [0, 3], [0, 3], [0, 3], [0, 1]]
+    else:
+        wmti_ranges = None
+
+    logger.info(f"scale_type: {scale_type}, target scale: {out_scale}, intercept: {intercept}, wmti_ranges: {wmti_ranges}")
+
     dataset_fn = args.dataset 
     batch_size= args.batch_size
     logger.info(f"dataset: {dataset_fn}, batch size: {batch_size}")
-    train_data, val_data, test_data, dki_norm_scaler = preprocess_datasets(datapath, mat_filename=dataset_fn, batch_size=batch_size, 
-                                                    data_norm=data_norm, scale_type=scale_type, scale=out_scale, intercept=intercept, 
-                                                    dki_norm_type=dki_norm_type, x_scaler=dki_norm_scaler) 
+    train_data, val_data, test_data, dki_norm_scaler = preprocess_datasets(datapath, mat_filename=dataset_fn, batch_size=batch_size, train_perc=0., val_perc=0., 
+                            data_norm=data_norm, scale_type=scale_type, scale=out_scale, intercept=intercept, dki_name = 'dki', wmti_name='wmti_paras',
+                            dki_norm_type=dki_norm_type, x_scaler=dki_norm_scaler, wmti_ranges=wmti_ranges) 
     ## save scaler
-    if args.input_scaler_filename == None:
+    if (args.input_scaler_filename == None) and (dki_norm_scaler != None):
         scaler_saveto = os.path.join(model_path, "dki_norm_scaler.gz")
         joblib.dump(dki_norm_scaler, scaler_saveto) 
         logger.info(f"dki normalization scaler saved to : {scaler_saveto}")
@@ -74,28 +80,30 @@ def main(args):
         ckpt_epoch = args.load_checkpoint
         enc_ckt = f'{model_path}/checkpoints/ckpt_ep-{ckpt_epoch}_encoder.pt'
         dec_ckt = f'{model_path}/checkpoints/ckpt_ep-{ckpt_epoch}_decoder.pt'
-        test(logger, encoder, attn_decoder, test_data, scale_type, out_scale, intercept=intercept, output_length=output_seq_length,
+        test(logger, encoder, attn_decoder, test_data, scale_type, out_scale, intercept=intercept, output_length=output_seq_length, wmti_ranges=wmti_ranges,
                                 encoder_file='', decoder_file='', encoder_ckpt=enc_ckt, decoder_ckpt=dec_ckt, save_dir=model_path)    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", default="train", type=str) #test
+    parser.add_argument("--mode", default="test", type=str) # #train
     parser.add_argument("--logpath", default=None)
     parser.add_argument("--logname", default='lstm', type=str)    
     parser.add_argument("--print_every", default=2000, type=int)
     parser.add_argument("--plot_every", default=20000, type=int)
 
-    parser.add_argument("--dataset", default='datasets/wmti_dki_constraint.mat', type=str)
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/whiteMatterModel', type=str)
-    parser.add_argument("--model_folder", default='saveLSTM_96_scale1_1e-3', type=str)
+    #real_dki_wmti_brain_constraints_rgr5449.mat ##synthetic_wmti_gt_nl1.mat
+    #synthetic_dki_wmti_constraints1.mat    synthetic_wmti_gt_nl2.mat  real_dki_wmti_wmrois_constraints_coh2 synthetic_dki_wmti_constraints3_2.mat
+    parser.add_argument("--dataset", default='datasets/real_dki_wmti_wmrois_constraints_Ileana.mat', type=str)  
+    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
+    parser.add_argument("--model_folder", default='LSTM_96_norm3_scale2_1e-3_sim3', type=str)
     parser.add_argument("--data_normalization", default=True, type=bool)
-    parser.add_argument("--input_scale_type", default="MinMax", type=str) #'MinMax'#'Standard'#
-    parser.add_argument("--input_scaler_filename", default= None, type=str) #"dki_norm_scaler.gz"
-    parser.add_argument("--output_scale_type", default=1, type=int) #1 #2 
-    parser.add_argument("--output_scale",  nargs="+", default=[100, 100, 100, 100, 1], type=int) 
-    parser.add_argument("--output_intercept", default=None)  #[0, 0, 0, 0, 0 ]
+    parser.add_argument("--input_scale_type", default=3, type=str) #'MinMax'##'Standard'
+    parser.add_argument("--input_scaler_filename", default=None , type=str) # "dki_norm_scaler.gz"
+    parser.add_argument("--output_scale_type", default=2, type=int) #1 #2
+    parser.add_argument("--output_scale",  nargs="+", default=[100], type=int) # # #[100, 100, 100, 100, 100]
+    parser.add_argument("--output_intercept", default=None)  
 
-    parser.add_argument("--num_epochs", default=1600, type=int)
+    parser.add_argument("--num_epochs", default=1200, type=int)
     parser.add_argument("--learning_rate", default=0.001, type=float)
     parser.add_argument("--start_epoch", default=-1)
     parser.add_argument("--dropout", default=0)
@@ -105,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument("--input_seq_length", default=6, type=int)
     parser.add_argument("--output_seq_length", default=5, type=int)
     parser.add_argument("--teacher_forcing_ratio", default=0.3, type=float)
-    parser.add_argument("--load_checkpoint", default=1599, type=int)
+    parser.add_argument("--load_checkpoint", default=1199, type=int)
 
     args = parser.parse_args()
     main(args)
