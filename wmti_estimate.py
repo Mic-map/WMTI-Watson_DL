@@ -159,13 +159,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--has_target", default=False, type=bool)
-    parser.add_argument("--dataset", default='datasets/synthetic_wmti_gt_nl3.mat', type=str) #  #wmti_dki_validate_estimation.mat
+    parser.add_argument("--dataset", default='data_folder/synthetic_wmti_gt_nl3.mat', type=str) #  #wmti_dki_validate_estimation.mat
     parser.add_argument("--dropout", default=0., type=float)
     parser.add_argument("--logpath", default=None)
     parser.add_argument("--logname", default='lstm', type=str)
 
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
-    parser.add_argument("--model_folder", default='LSTM_96_norm3_scale2_1e-3_sim3', type=str)
+    parser.add_argument("--datapath", default='my/root/path', type=str)
+    parser.add_argument("--model_folder", default='model_folder', type=str)
     parser.add_argument("--dki_norm_type", default=3, type=bool)
     parser.add_argument("--dki_scaler_filename", default=None, type=str)
     parser.add_argument("--output_scale_type", default=2, type=int)
