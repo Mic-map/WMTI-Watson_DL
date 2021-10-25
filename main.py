@@ -85,22 +85,20 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", default="test", type=str) # #train
+    parser.add_argument("--mode", default="train", type=str) 
     parser.add_argument("--logpath", default=None)
     parser.add_argument("--logname", default='lstm', type=str)    
     parser.add_argument("--print_every", default=2000, type=int)
     parser.add_argument("--plot_every", default=20000, type=int)
 
-    #real_dki_wmti_brain_constraints_rgr5449.mat ##synthetic_wmti_gt_nl1.mat
-    #synthetic_dki_wmti_constraints1.mat    synthetic_wmti_gt_nl2.mat  real_dki_wmti_wmrois_constraints_coh2 synthetic_dki_wmti_constraints3_2.mat
-    parser.add_argument("--dataset", default='datasets/real_dki_wmti_wmrois_constraints_Ileana.mat', type=str)  
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
-    parser.add_argument("--model_folder", default='LSTM_96_norm3_scale2_1e-3_sim3', type=str)
+    parser.add_argument("--dataset", default='datasets/training.mat', type=str)  
+    parser.add_argument("--datapath", default='my/root/path', type=str)
+    parser.add_argument("--model_folder", default='model', type=str)
     parser.add_argument("--data_normalization", default=True, type=bool)
-    parser.add_argument("--input_scale_type", default=3, type=str) #'MinMax'##'Standard'
-    parser.add_argument("--input_scaler_filename", default=None , type=str) # "dki_norm_scaler.gz"
+    parser.add_argument("--input_scale_type", default=3, type=str) 
+    parser.add_argument("--input_scaler_filename", default=None , type=str) 
     parser.add_argument("--output_scale_type", default=2, type=int) #1 #2
-    parser.add_argument("--output_scale",  nargs="+", default=[100], type=int) # # #[100, 100, 100, 100, 100]
+    parser.add_argument("--output_scale",  nargs="+", default=[100], type=int) 
     parser.add_argument("--output_intercept", default=None)  
 
     parser.add_argument("--num_epochs", default=1200, type=int)
