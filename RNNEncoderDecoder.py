@@ -1,118 +1,102 @@
-import os
-import argparse
-import json
-import joblib
-
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+import torch.nn.functional as F
 from util_dev import device
-from utils import preprocess_datasets, setup_log
-from RNNEncoderDecoder import EncoderRNN, AttnDecoderRNN
-from train import trainIters
-from test import test
+
+class EncoderRNN(nn.Module):
+    def __init__(self, input_size: int, hidden_size: int, seq_length: int, dropout:float = 0.,
+                        normalization : bool = True, num_layers: int = 1):
+
+        #input_size: feature size
+        super(EncoderRNN, self).__init__()
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+        self.seq_length = seq_length
+        self.input_size = input_size
+        self.norm = normalization
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, dropout = dropout, batch_first=True)
+        if normalization:
+            self.bn = nn.BatchNorm1d(input_size) #along the batch_size dim
+            self.layer_norm = nn.LayerNorm(hidden_size) #along the hidden_size dim
+
+    def forward(self, input):
+        ''' 
+        input : (batch_size, seq_len, feat_size=1)
+        output: batch_size, seq_len, hidden_size
+        hidden/cell: num_layers * num_directions, batch, hidden_size
+        '''
+        #bz = input.size(0)
+        #input = input.view(bz, seq_length, self.input_size)
+        if input.ndim < 2: input.unsqueeze_(1)        
+        if input.ndim < 3: input.unsqueeze_(2) #add 3rd dim to the original data
+        if self.norm:
+            input = self.bn(input.permute(0, 2, 1)).permute(0, 2, 1) # bn on dim=1
+
+        h_0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device))
+        c_0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size).to(device))
+        output, (hidden, cell) = self.lstm(input, (h_0, c_0))
+
+        if self.norm:
+            output = self.layer_norm(output)
+            hidden = self.layer_norm(hidden)
+            cell = self.layer_norm(cell)
+
+        return output, hidden, cell
 
 
-def main(args):
-    mode = args.mode
-    datapath = args.datapath
-    model_path = os.path.join(datapath, args.model_folder)
-    if not os.path.exists(model_path): os.mkdir(model_path) 
+class AttnDecoderRNN(nn.Module):
+    def __init__(self, hidden_size, output_size=1, x_seq_length=6, normalization=True, dropout=0.2):
+        ''' 
+        output_size: output features
+        '''
+        super(AttnDecoderRNN, self).__init__()
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.norm = normalization
 
-    logpath = model_path if args.logpath==None else args.logpath
-    logger = setup_log(logpath, f"{args.logname}-{mode}")
-    logger.info(f"device: {device}")
-    logger.info(f"model path: {model_path}")
-     
-    with open(f"{model_path}/{mode}_args.json", 'w') as jf:
-        json.dump(args.__dict__, jf, indent=2)
+        self.attn = nn.Linear(2*hidden_size + output_size, x_seq_length)
+        self.attn_combine = nn.Linear(hidden_size + output_size, hidden_size)
+        if normalization:
+            self.bn = nn.BatchNorm1d(hidden_size)
+            self.layer_norm = nn.LayerNorm(hidden_size)
 
-    ## input normalization
-    data_norm=args.data_normalization
-    dki_norm_type=args.input_scale_type
-    if args.input_scaler_filename != None:
-        logger.info(f"Input normalization: {data_norm}, using norm scaler: {args.input_scaler_filename}")
-        dki_norm_scaler = joblib.load(os.path.join(model_path, args.input_scaler_filename))
-    else:
-        logger.info(f"Input normalization: {data_norm}, norm type: {dki_norm_type}")
-        dki_norm_scaler = None
+        self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        self.out = nn.Linear(hidden_size, output_size)
 
-    ## output scaling
-    scale_type = args.output_scale_type 
-    out_scale = args.output_scale if scale_type==1 else args.output_scale[0]
-    intercept = args.output_intercept 
-    if scale_type ==2:
-        wmti_ranges=[[0,1], [0, 3], [0, 3], [0, 3], [0, 1]]
-    else:
-        wmti_ranges = None
+    def forward(self, input, hidden, cell, encoder_outputs):
+        '''
+        input (target): batch_size, output_feat_size(1)
+        hidden: batch, hidden_size
+        encoder_outputs: batch, x_seq_len, hidden_size
+		output: batch, 1
+        '''
+        if input.ndim < 2: input.unsqueeze_(1)
+        assert hidden.ndim==2
+        assert cell.ndim==2
 
-    logger.info(f"scale_type: {scale_type}, target scale: {out_scale}, intercept: {intercept}, wmti_ranges: {wmti_ranges}")
+        attn_weights = F.softmax(
+            self.attn(torch.cat((input, hidden, cell), 1)), dim=1).unsqueeze(1) #batch, 1, x_seq_len
+        attn_applied = torch.bmm(attn_weights, encoder_outputs).squeeze(1) #batch, hidden_size
 
-    dataset_fn = args.dataset 
-    batch_size= args.batch_size
-    logger.info(f"dataset: {dataset_fn}, batch size: {batch_size}")
-    train_data, val_data, test_data, dki_norm_scaler = preprocess_datasets(datapath, mat_filename=dataset_fn, batch_size=batch_size, train_perc=0., val_perc=0., 
-                            data_norm=data_norm, scale_type=scale_type, scale=out_scale, intercept=intercept, dki_name = 'dki', wmti_name='wmti_paras',
-                            dki_norm_type=dki_norm_type, x_scaler=dki_norm_scaler, wmti_ranges=wmti_ranges) 
-    ## save scaler
-    if (args.input_scaler_filename == None) and (dki_norm_scaler != None):
-        scaler_saveto = os.path.join(model_path, "dki_norm_scaler.gz")
-        joblib.dump(dki_norm_scaler, scaler_saveto) 
-        logger.info(f"dki normalization scaler saved to : {scaler_saveto}")
+        output = torch.cat((input, attn_applied), 1)
+        output = self.attn_combine(output) #batch, hidden_size
+        if self.norm: 
+            output = self.bn(output)        
 
-    ##
-    hidden_size = args.hidden_size
-    norm = args.model_norm
-    input_seq_length = args.input_seq_length
-    output_seq_length = args.output_seq_length    
-    
-    encoder = EncoderRNN(1, hidden_size, seq_length=input_seq_length, normalization=norm, num_layers=1).to(device)
-    attn_decoder = AttnDecoderRNN(hidden_size, 1, x_seq_length=input_seq_length, dropout=args.dropout, normalization=norm).to(device)
+        output = F.relu(self.dropout1(output)).unsqueeze(1) #batch, 1, hidden_size
+        output, (hidden, cell) = self.lstm(output, (hidden.unsqueeze(0), cell.unsqueeze(0))) #output: batch, 1, hidden_size
+        if self.norm:
+            output = self.layer_norm(output)
+            hidden = self.layer_norm(hidden)
 
-    ##################### Train ################
-    if mode == "train":
-        teacher_forcing_ratio = args.teacher_forcing_ratio 
-        logger.info(f"teacher_forcing_ratio: {teacher_forcing_ratio}")
-        trainIters(encoder, attn_decoder, train_data, n_epochs=args.num_epochs, logger=logger, st_epoch=args.start_epoch, save_dir=model_path, 
-                    val_data_loader=val_data, print_every=args.print_every, plot_every=args.plot_every, learning_rate=args.learning_rate, 
-                    teacher_forcing_ratio=teacher_forcing_ratio, output_length=output_seq_length)
-    elif mode=="test":
-    ##################### Test ################
-        logger.info("*********************** Testing model *********************")
-        ckpt_epoch = args.load_checkpoint
-        enc_ckt = f'{model_path}/checkpoints/ckpt_ep-{ckpt_epoch}_encoder.pt'
-        dec_ckt = f'{model_path}/checkpoints/ckpt_ep-{ckpt_epoch}_decoder.pt'
-        test(logger, encoder, attn_decoder, test_data, scale_type, out_scale, intercept=intercept, output_length=output_seq_length, wmti_ranges=wmti_ranges,
-                                encoder_file='', decoder_file='', encoder_ckpt=enc_ckt, decoder_ckpt=dec_ckt, save_dir=model_path)    
+        hidden = self.dropout2(hidden)
+        cell = self.dropout2(cell)
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", default="test", type=str) # #train
-    parser.add_argument("--logpath", default=None)
-    parser.add_argument("--logname", default='lstm', type=str)    
-    parser.add_argument("--print_every", default=2000, type=int)
-    parser.add_argument("--plot_every", default=20000, type=int)
+        output = self.out(output.squeeze(1)) #batch, 1
+        return output, hidden.squeeze(0), cell.squeeze(0), attn_weights
 
-    #real_dki_wmti_brain_constraints_rgr5449.mat ##synthetic_wmti_gt_nl1.mat
-    #synthetic_dki_wmti_constraints1.mat    synthetic_wmti_gt_nl2.mat  real_dki_wmti_wmrois_constraints_coh2 synthetic_dki_wmti_constraints3_2.mat
-    parser.add_argument("--dataset", default='datasets/real_dki_wmti_wmrois_constraints_Ileana.mat', type=str)  
-    parser.add_argument("--datapath", default='/home/yujian/Desktop/cibmaitsrv1/DeepLearnings/whiteMatterModel', type=str)
-    parser.add_argument("--model_folder", default='LSTM_96_norm3_scale2_1e-3_sim3', type=str)
-    parser.add_argument("--data_normalization", default=True, type=bool)
-    parser.add_argument("--input_scale_type", default=3, type=str) #'MinMax'##'Standard'
-    parser.add_argument("--input_scaler_filename", default=None , type=str) # "dki_norm_scaler.gz"
-    parser.add_argument("--output_scale_type", default=2, type=int) #1 #2
-    parser.add_argument("--output_scale",  nargs="+", default=[100], type=int) # # #[100, 100, 100, 100, 100]
-    parser.add_argument("--output_intercept", default=None)  
-
-    parser.add_argument("--num_epochs", default=1200, type=int)
-    parser.add_argument("--learning_rate", default=0.001, type=float)
-    parser.add_argument("--start_epoch", default=-1)
-    parser.add_argument("--dropout", default=0)
-    parser.add_argument("--batch_size", default=256, type=int)
-    parser.add_argument("--hidden_size", default=96, type=int)
-    parser.add_argument("--model_norm", default=True, type=bool)
-    parser.add_argument("--input_seq_length", default=6, type=int)
-    parser.add_argument("--output_seq_length", default=5, type=int)
-    parser.add_argument("--teacher_forcing_ratio", default=0.3, type=float)
-    parser.add_argument("--load_checkpoint", default=1199, type=int)
-
-    args = parser.parse_args()
-    main(args)
+    def initHidden(self, batch_size):
+        return torch.zeros(batch_size, self.hidden_size, device=device)		
