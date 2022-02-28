@@ -21,12 +21,12 @@ def test_model(logger, encoder, decoder, test_loader, criterion=nn.MSELoss(), sc
     #if wmti_ranges is None: wmti_ranges=[[0,1], [0, 4], [0, 3], [0, 3], [0, 1]]
 
     if os.path.isfile(encoder_file) and os.path.isfile(decoder_file):
-        encoder.load_state_dict(torch.load(encoder_file))
-        decoder.load_state_dict(torch.load(decoder_file))
+        encoder.load_state_dict(torch.load(encoder_file, map_location=device))
+        decoder.load_state_dict(torch.load(decoder_file, map_location=device))
     elif os.path.isfile(encoder_ckpt) and os.path.isfile(decoder_ckpt):
-        checkpoint1 = torch.load(encoder_ckpt)
+        checkpoint1 = torch.load(encoder_ckpt, map_location=device)
         encoder.load_state_dict(checkpoint1['model_state_dict'])
-        checkpoint2 = torch.load(decoder_ckpt)
+        checkpoint2 = torch.load(decoder_ckpt, map_location=device)
         decoder.load_state_dict(checkpoint2['model_state_dict'])     
     else:
         logger.info("No model files found!!!")
