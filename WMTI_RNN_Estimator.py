@@ -201,7 +201,7 @@ class WMTI_RNN_Estimator:
         self.deembed()
         self.evaluate_(filtering=filtering)
 
-    def reconstruct_maps(self, save_path=None, filtering=False):
+    def wmti_maps(self, save_path=None, filtering=False):
 
         assert self.wmti_estimate.shape[1]==len(self.wmti_names)
         if save_path is None: save_path = self.output
