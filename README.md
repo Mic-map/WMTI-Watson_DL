@@ -1,10 +1,10 @@
 # WMTI-Watson-Estimator
 
-Given DKI maps (*.nii):   
+Given DKI maps:   
   - mean/axial/radial diffusivity [md/ad/rd]  
   - mean/axial/radial kurtosis [mk/ak/rk]    
 
-Output WMTI-Watson model parameter maps (*.nii):  
+Output WMTI-Watson model parameter maps:  
   - f: axonal water Fraction.  
   - Da: Axonal Diffusivity.  
   - Depar: Extra-axonal PARallel Diffusivity.  
