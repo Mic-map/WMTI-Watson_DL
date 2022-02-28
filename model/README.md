@@ -5,7 +5,7 @@ output(5): f, Da, Depar, Deperp, c2
 data norm: True
 
 input scale type: 3, min_max_scale to [[0,3], [0,3], [0,3], [0, 10], [0, 10], [0, 10]], scale=100
-output scale type: 2, min_max_scale to [[0, 1], [0, 3], [0, 3], [0, 3], [0, 1]], scale=100
+output scale type: 2, min_max_scale to [[0, 1], [0, 4], [0, 3], [0, 3], [0, 1]], scale=100
 
 teacher_forcing_ratio: 0.3
 
