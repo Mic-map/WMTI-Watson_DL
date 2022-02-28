@@ -29,5 +29,5 @@ estimator = WMTI_RNN_Estimator()
 estimator.read_dki_nii(dki_path, output_path, dki_names=dki_names, 
                         wmti_names=wmti_names, fa_threshold=fa_threshold, mask=mask)
 estimator.estimate()
-estimator.reconstruct_maps()
+estimator.wmti_maps()
 ```
