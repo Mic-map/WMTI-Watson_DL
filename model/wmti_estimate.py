@@ -41,12 +41,12 @@ def prediction(encoder, decoder, data_loader, scale_type=0, out_scale=None, outp
                 decoder_file='', encoder_ckpt='', decoder_ckpt='', logger=None, save_dir=''):
 
     if os.path.isfile(encoder_file) and os.path.isfile(decoder_file):
-        encoder.load_state_dict(torch.load(encoder_file))
-        decoder.load_state_dict(torch.load(decoder_file))
+        encoder.load_state_dict(torch.load(encoder_file, map_location=device))
+        decoder.load_state_dict(torch.load(decoder_file, map_location=device))
     elif os.path.isfile(encoder_ckpt) and os.path.isfile(decoder_ckpt):
-        checkpoint1 = torch.load(encoder_ckpt)
+        checkpoint1 = torch.load(encoder_ckpt, map_location=device)
         encoder.load_state_dict(checkpoint1['model_state_dict'])
-        checkpoint2 = torch.load(decoder_ckpt)
+        checkpoint2 = torch.load(decoder_ckpt, map_location=device)
         decoder.load_state_dict(checkpoint2['model_state_dict'])     
     else:
         print("No model files found!!!")
