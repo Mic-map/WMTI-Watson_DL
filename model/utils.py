@@ -15,7 +15,7 @@ from util_dev import device
 np.set_printoptions(suppress=True)
 
 def load_model_from_checkpoint(checkpoint_file, model, optimizer, scheduler):
-    checkpoint = torch.load(checkpoint_file)
+    checkpoint = torch.load(checkpoint_file, map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict((checkpoint['opimizer_state_dict']))
     scheduler.load_state_dict((checkpoint['scheduler_state_dict']))
