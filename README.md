@@ -1,7 +1,7 @@
 # WMTI-Watson-Estimator
 
 Given DKI maps:   
-  - mean/axial/radial diffusivity [md/ad/rd]  
+  - mean/axial/radial diffusivity [md/ad/rd] in μm<sup>2</sup>/ms 
   - mean/axial/radial kurtosis [mk/ak/rk]    
 
 Output WMTI-Watson model parameter maps:  
