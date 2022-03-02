@@ -1,3 +1,6 @@
+# Diffusion Kurtosis Imaging tensor (DKI) estimation
+Please refer to the diffusion MRI processing pipeline (https://github.com/NYU-DiffusionMRI/DESIGNER) for DKI fitting (https://github.com/NYU-DiffusionMRI/DESIGNER/blob/master/utils/dki_fit.m).
+
 # WMTI-Watson-Estimator
 
 Given DKI maps:   
