@@ -235,8 +235,11 @@ class WMTI_RNN_Estimator:
                 wm = self.wmti_estimate[:,i]
                 filter_.append((bd[0]<wm) == (wm<bd[1]))
                 wmti_constraint += f" {bd[0]}<{wn}<{bd[1]} &"
-
-            wmti_constraint = wmti_constraint[:-1]
+                
+            Da = self.wmti_estimate[:,1]
+            Depar = self.wmti_estimate[:,2]
+            filter_.append(Da>Depar)
+            wmti_constraint = wmti_constraint + " Da>Depar"
             filter = np.array(filter_)
             self.filter = np.all(filter, axis=0)
             print(f"filtering estimation: {wmti_constraint}")
