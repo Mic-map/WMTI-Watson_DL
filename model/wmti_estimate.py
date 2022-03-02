@@ -5,7 +5,7 @@ import numpy as np
 import json
 import torch
 import joblib
-# import torch.nn as nn
+import time
 
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
@@ -50,7 +50,7 @@ def prediction(encoder, decoder, data_loader, scale_type=0, out_scale=None, outp
         decoder.load_state_dict(checkpoint2['model_state_dict'])     
     else:
         print("No model files found!!!")
-        return False   
+        return False
 
     batch_errors = []
     for i, datas in enumerate(data_loader):
@@ -155,8 +155,10 @@ def main(args):
     dec_ckt = f'{checkpoint_path}/ckpt_ep-{ckpt_epoch}_decoder.pt' if ckpt_epoch > 0 else ''
     enc_file= f'{checkpoint_path}/lstm_encoder.pt' if ckpt_epoch <= 0 else ''
     dec_file = f'{checkpoint_path}/lstm_decoder.pt' if ckpt_epoch <= 0 else ''   
+    t_ = time.time()
     wmti = prediction(encoder, attn_decoder, data_loader, scale_type, out_scale, logger=logger, has_target=has_target, intercept=intercept, output_length=output_seq_length,
                             encoder_file=enc_file, decoder_file=dec_file, encoder_ckpt=enc_ckt, decoder_ckpt=dec_ckt, save_dir=output_path) 
+    print(f"Estimation time: {np.round_(time.time() - t_, 3)} s")
 
     np.save(f"{output_path}/wmti_estimate.npy", wmti) 
     if not has_target:
