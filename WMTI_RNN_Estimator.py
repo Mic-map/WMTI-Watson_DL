@@ -35,7 +35,7 @@ class WMTI_RNN_Estimator:
     # mask: brain or ROI mask
 
     '''
-    def __init__(self, estimator_path=None, checkpoint=1000, batch_size=2048, 
+    def __init__(self, estimator_path=None, checkpoint=1000, batch_size=20000, 
                     wmti_bounds=[[0.01, 1], [0.01, 3.9], [0.01, 3], [0.01, 3], [0.33, 1]]):
         if estimator_path is None:
             root_path = os.path.dirname(os.path.realpath(__file__))
