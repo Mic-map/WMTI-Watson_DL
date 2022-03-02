@@ -34,3 +34,5 @@ estimator.read_dki_nii(dki_path, output_path, dki_names=dki_names,
 estimator.estimate()
 estimator.wmti_maps()
 ```
+# Evaluation*
+
