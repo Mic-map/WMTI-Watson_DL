@@ -1,5 +1,4 @@
 '''
-
 '''
 
 import nibabel as nib
@@ -364,6 +363,7 @@ def plot_error_distribution(errors, plotparam, savedir=None, err_perc=5, savetit
         ax.set_ylabel('Probability')
         ax.yaxis.set_major_formatter(PercentFormatter(1))
         ax.set_ylim(0, ymax)
+        ax.set_title(par, fontsize=16)
         ax.set_aspect('auto')
 
     plt.tight_layout()
