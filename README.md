@@ -12,7 +12,7 @@ Output WMTI-Watson model parameter maps:
   - Da: Axonal Diffusivity.  
   - Depar: Extra-axonal PARallel Diffusivity.  
   - Deperp: Extra-axonal PERPendicular Diffusivity.  
-  - c2: mean cos ^ 2 of the axon orientation dispersion
+  - c2: mean cos<sup>2</sup> of the axon orientation dispersion
   
 # Recommended Usage
 ```
