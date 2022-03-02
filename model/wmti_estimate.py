@@ -158,7 +158,7 @@ def main(args):
     t_ = time.time()
     wmti = prediction(encoder, attn_decoder, data_loader, scale_type, out_scale, logger=logger, has_target=has_target, intercept=intercept, output_length=output_seq_length,
                             encoder_file=enc_file, decoder_file=dec_file, encoder_ckpt=enc_ckt, decoder_ckpt=dec_ckt, save_dir=output_path) 
-    print(f"Estimation time: {np.round_(time.time() - t_, 3)} s")
+    logger.info(f"Estimation time: {np.round_(time.time() - t_, 3)} s")
 
     np.save(f"{output_path}/wmti_estimate.npy", wmti) 
     if not has_target:
