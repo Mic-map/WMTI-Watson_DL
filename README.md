@@ -3,7 +3,7 @@ See pre-print: Yujian Diao and Ileana Ozana Jelescu , 2022. Parameter estimation
 using encoder-decoder recurrent neural network. arXiv:2203.00595[physics]. (https://arxiv.org/abs/2203.00595)
 
 
-# WMTI-Watson-Estimator
+# WMTI-Watson Estimator
 
 Given DKI maps:  
 *(For Diffusion Kurtosis Imaging tensor (DKI) estimation please refer to DKI fitting (https://github.com/NYU-DiffusionMRI/DESIGNER/blob/master/utils/dki_fit.m) in the diffusion 
