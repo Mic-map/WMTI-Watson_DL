@@ -45,8 +45,8 @@ is set in estimator.test(), the evaluaiton will be only performed on voxels with
 
 # Re-training
 If you want to retrain the model on your own dataset, you can use the following command line,  
-model$main.py --mode=test --dataset=data_filename.mat --datapath=path/to/data --model_folder=path/to/output --num_epochs=900  
-    --train_perc=training_data_ratio --val_perc=validation_ratio  
+model$main.py --mode=test --dataset=data_filename.mat --datapath=path/to/data --model_folder=path/to/output  
+--num_epochs=900 --train_perc=training_data_ratio --val_perc=validation_ratio  
   
 Note the training dataset which is a Matlab mat-file should contain two variables, 'dki'(samples x 6) and 'wmti_paras'(samples x 5)  
 with orders discribed above.
