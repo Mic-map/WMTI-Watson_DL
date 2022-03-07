@@ -38,5 +38,15 @@ estimator.read_dki_nii(dki_path, output_path, dki_names=dki_names,
 estimator.estimate()
 estimator.wmti_maps()
 ```
-# Evaluation*
+# Evaluation
 
+If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path' in estimator.read_dki_nii() and run estimator.test(). The evaluation result will be stored under 'output_path/tmp'. If filtering=True   
+is set in estimator.test(), the evaluaiton will be only performed on voxels with physical parametric values.
+
+# Re-training
+If you want to retrain the model on your own dataset, you can use the following command line,  
+model$main.py --mode=test --dataset=data_filename.mat --datapath=path/to/data --model_folder=path/to/output --num_epochs=900  
+    --train_perc=training_data_ratio --val_perc=validation_ratio  
+  
+Note the training dataset which is a Matlab mat-file should contain two variables, 'dki'(samples x 6) and 'wmti_paras'(samples x 5)  
+with orders discribed above.
