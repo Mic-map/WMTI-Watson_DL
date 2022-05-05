@@ -25,24 +25,37 @@ import os
 
 wmti_names=['f', 'Da', 'Depar', 'Deperp', 'c2']  
 dki_names=['md', 'ad', 'rd', 'mk', 'ak', 'rk']  
+#The physical bounds for filtering the parameter estimation.
+wmti_bounds=[[0.01, 1], [0.01, 3.9], [0.01, 3], [0.01, 3], [0.33, 1]]
 
 dki_path = 'path/to/dki'
 output_path = 'path/to/wmti'
 mask = 'path/to/brainmask'
+
+#Change the FA threshold when you only want to do estimation for voxels with a higher FA  
+#Usually FA in white matter is higher
 fa_threshold = 0
 
-estimator = WMTI_RNN_Estimator()
+estimator = WMTI_RNN_Estimator(wmti_bounds=wmti_bounds)
 
 estimator.read_dki_nii(dki_path, output_path, dki_names=dki_names, 
                         wmti_names=wmti_names, fa_threshold=fa_threshold, mask=mask)
 estimator.estimate()
 estimator.wmti_maps()
+
+#When you only want to keep the estimate within the physical bounds.
+#estimator.wmti_maps(filtering=True)
 ```
 # Evaluation
-
-If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path' in estimator.read_dki_nii() and run estimator.test(). The evaluation result will be stored under 'output_path/tmp'. If filtering=True   
-is set in estimator.test(), the evaluaiton will be only performed on voxels with physical parametric values.
-
+```
+#If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path'  
+#The evaluation result (comparison between RNN and NLLS estimation) will be stored under 'output_path/tmp'.
+wmti_nlls = 'path/to/NLLS/estimation'
+estimator.read_dki_nii(dki_path, output_path, wmti_path=wmti_nlls, fa_threshold=fa_threshold, mask=mask) 
+estimator.test() 
+#When you only want to compare RNN and NLLS estimation on voxels respecting the physical bounds.
+#estimator.test(filtering=True) #parameter estimates outside the physical bounds will be ignored
+```
 # Re-training
 If you want to retrain the model on your own dataset, you can use the following command line,  
 model$main.py --mode=test --dataset=data_filename.mat --datapath=path/to/data --model_folder=path/to/output  
