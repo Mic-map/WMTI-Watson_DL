@@ -48,8 +48,14 @@ estimator.wmti_maps(filtering=True)
 ```
 # Evaluation
 ```
-#If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path'  
-#The evaluation result (comparison between RNN and NLLS estimation) will be stored under 'output_path/tmp'.  
+
+'''
+If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path'  
+The evaluation result (comparison between RNN and NLLS estimation) will be stored under 'output_path/tmp'. 
+The bounds of WMTI parameters ('f', 'Da', 'Depar', 'Deperp', 'c2') in our training data are:   
+[0, 1], [0, 4], [0, 3], [0, 3], [0.33, 1].    
+Those bounds have to be consistent when fitting the WMTI model using other methods like NLLS.
+'''
 
 wmti_nlls = 'path/to/NLLS/estimation'
 estimator.read_dki_nii(dki_path, output_path, wmti_path=wmti_nlls, fa_threshold=fa_threshold, mask=mask) 
