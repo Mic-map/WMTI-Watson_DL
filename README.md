@@ -44,17 +44,20 @@ estimator.estimate()
 estimator.wmti_maps()
 
 #When you only want to keep the estimate within the physical bounds.
-#estimator.wmti_maps(filtering=True)
+estimator.wmti_maps(filtering=True)
 ```
 # Evaluation
 ```
 #If you have WMTI-Watson parametric maps fitted by other methods (e.g. NLLS), you can provide the path to 'wmti_path'  
-#The evaluation result (comparison between RNN and NLLS estimation) will be stored under 'output_path/tmp'.
+#The evaluation result (comparison between RNN and NLLS estimation) will be stored under 'output_path/tmp'.  
+
 wmti_nlls = 'path/to/NLLS/estimation'
 estimator.read_dki_nii(dki_path, output_path, wmti_path=wmti_nlls, fa_threshold=fa_threshold, mask=mask) 
-estimator.test() 
+estimator.test()    
+
 #When you only want to compare RNN and NLLS estimation on voxels respecting the physical bounds.
-#estimator.test(filtering=True) #parameter estimates outside the physical bounds will be ignored
+#Parameter estimates outside the physical bounds will be ignored
+estimator.test(filtering=True) 
 ```
 # Re-training
 If you want to retrain the model on your own dataset, you can use the following command line,  
