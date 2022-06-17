@@ -46,6 +46,9 @@ estimator.wmti_maps()
 #When you only want to keep the estimate within the physical bounds.
 estimator.wmti_maps(filtering=True)
 ```
+     
+If you have problems in downloading the embedding data automatically, please download it manually following the link:   
+https://drive.google.com/file/d/1w0SeNVUnl218BJlzucY5uThSgMufN1Q7/view?usp=sharing and put it in the "model" folder.
 # Evaluation
 ```
 
