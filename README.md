@@ -1,6 +1,6 @@
 # Parameter estimation for WMTI-Watson model of white matter using encoder-decoder recurrent neural network
-See pre-print: Yujian Diao and Ileana Ozana Jelescu , 2022. Parameter estimation for WMTI-Watson model of white matter  
-using encoder-decoder recurrent neural network. arXiv:2203.00595[physics]. (https://arxiv.org/abs/2203.00595)
+See article: Yujian Diao and Ileana Ozana Jelescu, Parameter estimation for WMTI-Watson model of white matter  
+using encoder-decoder recurrent neural network. Magn Reson Med 2022. (https://doi.org/10.1002/mrm.29495)
 
 
 # WMTI-Watson Estimator
